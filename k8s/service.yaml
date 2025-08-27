@@ -8,6 +8,7 @@ spec:
   selector:
     app: websocket-server
   ports:
-    - port: 8080
-      targetPort: 8080
-      nodePort: 30080   # external access
+    - name: http
+      port: 8080        # Service port
+      targetPort: 8080  # Container port
+      nodePort: 30080   # NodePort for external access
