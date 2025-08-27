@@ -2,6 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: websocket-ingress
+  namespace: websocket
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
     - host: websocket.local
@@ -13,4 +16,4 @@ spec:
               service:
                 name: websocket-service
                 port:
-                  number: 80
+                  number: 8080
