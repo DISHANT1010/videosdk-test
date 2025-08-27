@@ -2,11 +2,12 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: websocket-hpa
+  namespace: websocket
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: websocket-server
+    name: websocket-server   
   minReplicas: 2
   maxReplicas: 10
   metrics:
