@@ -9,16 +9,16 @@ data:
       scrape_interval: 15s
 
     scrape_configs:
-      - job_name: 'kubernetes-nodes'
-        kubernetes_sd_configs:
-          - role: node
-        relabel_configs:
-          - action: labelmap
-            regex: __meta_kubernetes_node_label_(.+)
-
-      - job_name: 'websocket-server'
+      # Scrape Prometheus itself
+      - job_name: 'prometheus'
         static_configs:
-          - targets: ['websocket-server.websocket.svc.cluster.local:8080']
+          - targets: ['localhost:9090']
+
+      # Scrape your WebSocket app on EC2 Public IP
+      - job_name: 'websocket-app'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['54.160.234.132:8080']  
 
 ---
 apiVersion: apps/v1
@@ -50,6 +50,7 @@ spec:
         - name: config
           configMap:
             name: prometheus-config
+
 ---
 apiVersion: v1
 kind: Service
@@ -58,9 +59,9 @@ metadata:
   namespace: monitoring
 spec:
   type: NodePort
+  selector:
+    app: prometheus
   ports:
     - port: 9090
       targetPort: 9090
-      nodePort: 30090
-  selector:
-    app: prometheus
+      nodePort: 30090   
