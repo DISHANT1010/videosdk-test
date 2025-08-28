@@ -9,11 +9,6 @@ data:
       scrape_interval: 15s
 
     scrape_configs:
-      # Scrape Prometheus itself
-      - job_name: 'prometheus'
-        static_configs:
-          - targets: ['localhost:9090']
-
       # Scrape your WebSocket app on EC2 Public IP
       - job_name: 'websocket-app'
         metrics_path: /metrics
