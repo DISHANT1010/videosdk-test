@@ -1,34 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+
+      - job_name: 'websocket-server'
+        static_configs:
+          - targets: ['websocket-server.websocket.svc.cluster.local:8080']
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: grafana
+  name: prometheus
   namespace: monitoring
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grafana
+      app: prometheus
   template:
     metadata:
       labels:
-        app: grafana
+        app: prometheus
     spec:
       containers:
-        - name: grafana
-          image: grafana/grafana:latest
+        - name: prometheus
+          image: prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
           ports:
-            - containerPort: 3000
+            - containerPort: 9090
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: grafana-service
+  name: prometheus-service
   namespace: monitoring
 spec:
   type: NodePort
   ports:
-    - port: 3000
-      targetPort: 3000
-      nodePort: 30300
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30090
   selector:
-    app: grafana
+    app: prometheus
