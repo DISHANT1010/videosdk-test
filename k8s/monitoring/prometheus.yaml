@@ -9,14 +9,16 @@ data:
       scrape_interval: 15s
 
     scrape_configs:
+      # Scrape Prometheus itself
       - job_name: 'prometheus'
         static_configs:
           - targets: ['localhost:9090']
 
-      - job_name: 'websocket-app-external'
+      # Scrape your WebSocket app on EC2 Public IP
+      - job_name: 'websocket-app'
         metrics_path: /metrics
         static_configs:
-          - targets: ['54.160.234.132:8080']
+          - targets: ['54.160.234.132:8080']   # 👈 replace with your VM public IP
 
 ---
 apiVersion: apps/v1
@@ -62,4 +64,4 @@ spec:
   ports:
     - port: 9090
       targetPort: 9090
-      nodePort: 30090
+      nodePort: 30090   
